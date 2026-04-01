@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Full Featured IT Exam</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #1e3c72, #2a5298);
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+.container {
+    width: 900px;
+    margin: 40px auto;
+    background: white;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px gray;
+}
+h2 {
+    text-align: center;
+    color: #1e3c72;
+}
+.question {
+    margin-top: 20px;
+}
+.options label {
+    display: block;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.options input[type="radio"] {
+    margin-right: 10px;
+}
+button {
+    padding: 10px 20px;
+    margin: 20px 5px 0 0;
+    background: #2a5298;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+button:hover {
+    background: #1e3c72;
+}
+.result {
+    margin-top: 20px;
+    padding: 15px;
+    background: #eaf3ff;
+    border-radius: 8px;
+    text-align: center;
+}
+.correct {
+    background-color: #c8f7c5 !important;
+}
+.incorrect {
+    background-color: #f7c5c5 !important;
+}
+#progressContainer {
+    margin-top: 20px;
+    background: #ddd;
+    border-radius: 10px;
+    height: 20px;
+}
+#progressBar {
+    height: 20px;
+    background: #2a5298;
+    width: 0%;
+    border-radius: 10px;
+}
+#timer {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1e3c72;
+    text-align: center;
+    margin-top: 10px;
+}
+</style>
+</head>
+<body>
+
+<div class="container" id="quizContainer">
+<h2>Information Technology Exam - 50 Questions</h2>
+<div id="timer">Time Remaining: 30:00</div>
+<div id="progressContainer">
+  <div id="progressBar"></div>
+</div>
+<div id="questionBox"></div>
+<div class="options" id="optionsBox"></div>
+<button id="prevBtn" onclick="prevQuestion()">Previous</button>
+<button id="nextBtn" onclick="nextQuestion()">Next</button>
+<button id="submitBtn" onclick="submitQuiz()" style="display:none;">Submit</button>
+<div class="result" id="resultBox" style="display:none;"></div>
+</div>
+
+<script>
+// ===== 50 IT Questions Array =====
+const questions = [
+{q:"1. What does CPU stand for?", options:["Central Processing Unit","Computer Personal Unit","Central Performance Unit","Control Processing Unit"], answer:0},
+{q:"2. Which of these is an input device?", options:["Keyboard","Monitor","Printer","Speaker"], answer:0},
+{q:"3. Which is the main memory in a computer?", options:["RAM","Hard Disk","CD-ROM","Flash Drive"], answer:0},
+{q:"4. Which programming language is primarily used for web development?", options:["JavaScript","C","Python","Assembly"], answer:0},
+{q:"5. What does HTML stand for?", options:["HyperText Markup Language","Hyper Tool Markup Language","HighText Machine Language","Hyperlink Text Machine Language"], answer:0},
+{q:"6. Which of the following is a database management system?", options:["MySQL","HTML","CSS","Python"], answer:0},
+{q:"7. Which of these is a web server?", options:["Apache","Windows 10","Linux Kernel","Python"], answer:0},
+{q:"8. What is the purpose of DNS?", options:["Translate domain names to IP addresses","Store user data","Control network traffic","Encrypt messages"], answer:0},
+{q:"9. Which protocol is used to send emails?", options:["SMTP","FTP","HTTP","TCP"], answer:0},
+{q:"10. Which of these is an operating system?", options:["Windows","Microsoft Word","Google Chrome","Adobe Photoshop"], answer:0},
+{q:"11. Which storage is non-volatile?", options:["Hard Disk","RAM","Cache","Registers"], answer:0},
+{q:"12. What is the function of a router?", options:["Forward data packets","Store files","Process images","Compile code"], answer:0},
+{q:"13. Which is a cloud computing service?", options:["AWS","Linux","Python","HTML"], answer:0},
+{q:"14. What is phishing?", options:["A cyber attack","A programming language","A hardware device","A network protocol"], answer:0},
+{q:"15. What does IP in IP address stand for?", options:["Internet Protocol","Internal Program","Input Processing","Internet Port"], answer:0},
+{q:"16. What is the default port for HTTP?", options:["80","21","22","443"], answer:0},
+{q:"17. Which of these is a scripting language?", options:["JavaScript","C++","Java","COBOL"], answer:0},
+{q:"18. What is SQL used for?", options:["Database queries","Styling web pages","Writing scripts","Operating system commands"], answer:0},
+{q:"19. What is the purpose of CSS?", options:["Style web pages","Structure web pages","Store data","Control hardware"], answer:0},
+{q:"20. Which of these is an example of a NoSQL database?", options:["MongoDB","MySQL","Oracle","SQL Server"], answer:0},
+{q:"21. What does GUI stand for?", options:["Graphical User Interface","Global User Internet","General Utility Interface","Graphical Unit Integration"], answer:0},
+{q:"22. Which device connects multiple devices in a network?", options:["Switch","Printer","Monitor","Keyboard"], answer:0},
+{q:"23. What is an IP address?", options:["Unique identifier for a device","Password","File name","Program code"], answer:0},
+{q:"24. Which of the following is an open-source programming language?", options:["Python","Visual Basic","MATLAB","SAS"], answer:0},
+{q:"25. Which command is used to list files in Linux?", options:["ls","dir","list","show"], answer:0},
+{q:"26. What is HTTPS used for?", options:["Secure web communication","File transfer","Email sending","Printing documents"], answer:0},
+{q:"27. Which of these is a type of computer virus?", options:["Trojan","Router","Switch","Firewall"], answer:0},
+{q:"28. What does FTP stand for?", options:["File Transfer Protocol","File Transmission Program","Fast Transfer Port","File Transport Path"], answer:0},
+{q:"29. Which is a relational database?", options:["MySQL","MongoDB","Cassandra","Redis"], answer:0},
+{q:"30. Which programming paradigm uses objects?", options:["Object-Oriented Programming","Procedural Programming","Functional Programming","Event-Driven Programming"], answer:0},
+{q:"31. What does BIOS stand for?", options:["Basic Input Output System","Binary Input Output Service","Basic Internet Output System","Basic Internal Operating System"], answer:0},
+{q:"32. What is the purpose of a firewall?", options:["Network security","Increase CPU speed","Store data","Compile code"], answer:0},
+{q:"33. Which device converts digital signals to analog?", options:["Modem","Router","Switch","Hub"], answer:0},
+{q:"34. What is the main function of DNS?", options:["Domain name resolution","Data storage","Email transfer","Program execution"], answer:0},
+{q:"35. Which type of memory is fastest?", options:["Cache","RAM","Hard Disk","SSD"], answer:0},
+{q:"36. What is the use of HTTPS over HTTP?", options:["Encryption","Faster loading","Database connection","Data compression"], answer:0},
+{q:"37. Which of these is an interpreted language?", options:["Python","C","C++","Java"], answer:0},
+{q:"38. Which layer of OSI model is responsible for routing?", options:["Network Layer","Data Link Layer","Transport Layer","Physical Layer"], answer:0},
+{q:"39. What is a MAC address?", options:["Hardware identifier","IP address","Protocol","Port number"], answer:0},
+{q:"40. Which of the following is an IDE?", options:["Visual Studio Code","Python","Linux","HTTP"], answer:0},
+{q:"41. What does GUI allow?", options:["User-friendly interface","Database storage","Networking","Code compilation"], answer:0},
+{q:"42. Which protocol is used for secure file transfer?", options:["SFTP","FTP","HTTP","SMTP"], answer:0},
+{q:"43. Which type of database stores data in key-value pairs?", options:["NoSQL","SQL","Oracle","MySQL"], answer:0},
+{q:"44. What is the main function of RAM?", options:["Temporary storage for running programs","Store permanent files","Backup data","Control input devices"], answer:0},
+{q:"45. Which command is used to copy files in Linux?", options:["cp","mv","rm","ls"], answer:0},
+{q:"46. What is latency in networking?", options:["Delay in data transfer","Bandwidth","Data corruption","Encryption"], answer:0},
+{q:"47. Which of these is a markup language?", options:["HTML","Python","C++","Java"], answer:0},
+{q:"48. What is an algorithm?", options:["Step-by-step procedure","Programming language","Data storage","Network device"], answer:0},
+{q:"49. Which device is used to connect to a LAN?", options:["Network Interface Card","Monitor","Keyboard","Printer"], answer:0},
+{q:"50. What is RAID used for?", options:["Data redundancy and speed","Networking","Programming","Security"], answer:0}
+];
+
+// ===== Exam Program Logic =====
+let currentQuestion = 0;
+let userAnswers = Array(questions.length).fill(null);
+const totalTime = 30*60; // 30 minutes
+let timeLeft = totalTime;
+let timerInterval;
+
+const questionBox = document.getElementById("questionBox");
+const optionsBox = document.getElementById("optionsBox");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const submitBtn = document.getElementById("submitBtn");
+const resultBox = document.getElementById("resultBox");
+const progressBar = document.getElementById("progressBar");
+const timerDisplay = document.getElementById("timer");
+
+// Load question
+function loadQuestion(){
+    const q = questions[currentQuestion];
+    questionBox.innerHTML = `<div class="question">${currentQuestion+1}. ${q.q}</div>`;
+    optionsBox.innerHTML = "";
+    q.options.forEach((opt,i)=>{
+        const checked = userAnswers[currentQuestion]===i?"checked":"";
+        optionsBox.innerHTML += `<label>
+        <input type="radio" name="option" value="${i}" ${checked}>
+        ${opt}
+        </label>`;
+    });
+    prevBtn.style.display = currentQuestion===0?"none":"inline-block";
+    nextBtn.style.display = currentQuestion===questions.length-1?"none":"inline-block";
+    submitBtn.style.display = currentQuestion===questions.length-1?"inline-block":"none";
+    updateProgress();
+}
+
+// Save answer automatically
+function saveAnswer(){
+    const selected = document.querySelector('input[name="option"]:checked');
+    if(selected){
+        userAnswers[currentQuestion] = parseInt(selected.value);
+    }
+}
+
+// Navigation
+function nextQuestion(){ saveAnswer(); if(currentQuestion<questions.length-1){ currentQuestion++; loadQuestion(); } }
+function prevQuestion(){ saveAnswer(); if(currentQuestion>0){ currentQuestion--; loadQuestion(); } }
+
+// Submit Quiz
+function submitQuiz(){
+    saveAnswer();
+    clearInterval(timerInterval);
+    let score = 0;
+    let resultHTML = "";
+    questions.forEach((q,i)=>{
+        let userAns = userAnswers[i];
+        let correct = q.answer;
+        if(userAns===correct) score++;
+        resultHTML += `<div class="${userAns===correct?"correct":"incorrect"}">
+        Q${i+1}: ${q.q}<br>
+        Your Answer: ${userAns!==null?q.options[userAns]:"No Answer"}<br>
+        Correct Answer: ${q.options[correct]}
+        </div><br>`;
+    });
+    document.getElementById("quizContainer").style.display="none";
+    resultBox.style.display="block";
+    resultBox.innerHTML = `<h2>Your Score: ${score}/${questions.length}</h2>` + resultHTML;
+}
+
+// Progress bar
+function updateProgress(){
+    let percent = ((userAnswers.filter(a=>a!==null).length)/questions.length)*100;
+    progressBar.style.width = percent+"%";
+}
+
+// Timer
+function startTimer(){
+    timerInterval = setInterval(()=>{
+        let min = Math.floor(timeLeft/60);
+        let sec = timeLeft%60;
+        timerDisplay.innerText = `Time Remaining: ${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+        if(timeLeft<=0){ clearInterval(timerInterval); submitQuiz(); }
+        timeLeft--;
+    },1000);
+}
+
+// Auto save every 5 seconds
+setInterval(()=>{ saveAnswer(); updateProgress(); },5000);
+
+loadQuestion();
+startTimer();
+</script>
+
+</body>
+</html>
